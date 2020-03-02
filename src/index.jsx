@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {Input, Icon } from 'antd';
 import omit from 'omit.js';
-import './style/input.less'
+import './style/index.less'
 
 class MultipleInput extends React.Component {
   constructor(props) {
@@ -10,17 +10,24 @@ class MultipleInput extends React.Component {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleContentKeyDown = this.handleContentKeyDown.bind(this);
+    this.handleContentClick = this.handleContentClick.bind(this);
 
     this.state = {
       values: [],
       inputValue: '',
       count: 0,
+      isCeil: false,
     }
   }
 
   handleChange(e) {
     let { value } = e.target;
     const {inputObj, inputValueCnt} = this.refs;
+    const {isCeil} = this.state;
+    this.props.selectChange && this.props.selectChange(isCeil);
+    if(isCeil) {
+      return;
+    }
     this.setState({
       inputValue: value
     }, () => {
@@ -33,7 +40,7 @@ class MultipleInput extends React.Component {
     e.stopPropagation();
     let {keyCode} = e;
     if(keyCode == 188 || keyCode == 229) { // 半角
-      let {inputValue, values} = this.state
+      let {inputValue, values, isCeil} = this.state;
       if(keyCode == 229) {
         if(!/(,|，)$/g.test(inputValue)) return;
       }
@@ -44,13 +51,18 @@ class MultipleInput extends React.Component {
         this.setState({
           values,
           inputValue: ''
+        }, () => {
+          let {selectMax} = this.props;
+          this.setState({
+            isCeil: selectMax && this.state.values.length >= selectMax
+          });
         });
         this.refs.inputObj.style.width = '5px';
       }
       // 随着输入滚动
-      let refContentWrap = this.refs.refContentWrap;
+      let {refContentWrap, refContent} = this.refs;
       let timeoutId = setTimeout(function() {
-        refContentWrap.scrollTo(1000, 0);
+        refContentWrap.scrollTo(getComputedStyle(refContent).width && getComputedStyle(refContent).width.split('px')[0], 0);
       }, 0);
       // clearTimeout(timeoutId)
     } else if(keyCode == 37 || keyCode == 8) {
@@ -74,6 +86,11 @@ class MultipleInput extends React.Component {
         this.setState({
           count,
           values
+        }, () => {
+          let {selectMax} = this.props;
+          this.setState({
+            isCeil: selectMax && this.state.values.length >= selectMax
+          });
         });
       }
     }
@@ -84,6 +101,11 @@ class MultipleInput extends React.Component {
     values.splice(idx, 1);
     this.setState({
       values
+    }, () => {
+      let {selectMax} = this.props;
+      this.setState({
+        isCeil: selectMax && this.state.values.length >= selectMax
+      });
     });
     this.refs.inputObj.focus();
   }
@@ -131,6 +153,22 @@ class MultipleInput extends React.Component {
     }
   }
 
+  handleContentClick() {
+    let { values } = this.state;
+    let {refContentWrap, refContent, inputObj} = this.refs;
+    if(values.length) {
+      var selection = getSelection()
+      // 设置最后光标对象
+      refContent.focus();
+      selection.selectAllChildren(refContent);
+      // selection.collapseToEnd();
+      selection.collapseToStart();
+      refContentWrap.scrollTo(0, 0);
+    } else {
+      inputObj.focus();
+    }
+  }
+
   render() {
     const { state, props } = this;
     const getFileItem = () => {
@@ -151,7 +189,9 @@ class MultipleInput extends React.Component {
     props.onChange(state.values);
 
     return <div className="multiple-ant-input">
-      <div className="multiple-ant-input-wrapper" ref="refContentWrap">
+      <div className="multiple-ant-input-wrapper" ref="refContentWrap"
+        onClick={this.handleContentClick}
+      >
         <div
           className="multiple-ant-input-wrap"
           contentEditable="true"

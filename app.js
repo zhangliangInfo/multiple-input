@@ -8,10 +8,16 @@ function handleChange(value) {
   console.log(value)
 }
 
+function handleSelectedChange(isCeil) {
+  console.log(isCeil)
+}
+
 
 ReactDOM.render(
   <MultipleInput
     onChange={handleChange}
+    selectMax="3"
+    selectChange={handleSelectedChange}
   />,
   document.getElementById('app')
 )
