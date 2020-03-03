@@ -4,7 +4,7 @@
   white-space: nowrap;
   background: #fff;
   border: 1px solid #d9d9d9;
-  border-radius: 2px;
+  border-radius: 4px;
   outline: none;
   transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
   .multiple-ant-input-wrapper {
@@ -84,6 +84,19 @@
         color: #fff;
       }
     }
+  }
+  .multiple-ant-input-place-text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-left: 10px;
+    z-index: 12;
+    line-height: 26px;
+    color: rgba(0, 0, 0, .65);
+    opacity: .4;
+  }
+  .none {
+    display: none;
   }
 }
 .multiple-ant-input-focus {

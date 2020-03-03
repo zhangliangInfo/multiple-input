@@ -18,7 +18,8 @@ ReactDOM.render(
     onChange={handleChange}
     selectMax="3"
     selectChange={handleSelectedChange}
-    inputReg={/^\d*$/}
+    inputReg={/^\d*(,|，)?$/}
+    placeholder="请输入商品编码"
   />,
   document.getElementById('app')
 )

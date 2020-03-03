@@ -16,10 +16,17 @@ class MultipleInput extends React.Component {
 
     this.state = {
       values: [],
+      valuelength: 0,
       inputValue: '',
       count: 0,
       isCeil: false,
       isFocus: false
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.valuelength != prevState.valuelength) {
+      this.props.onChange(this.state.values);
     }
   }
 
@@ -36,7 +43,7 @@ class MultipleInput extends React.Component {
       this.setState({
         inputValue: value
       }, () => {
-        let width = Math.ceil(getComputedStyle(inputValueCnt).width && getComputedStyle(this.refs.inputValueCnt).width.split('px')[0] || 0);
+        let width = inputValueCnt.clientWidth;
         inputObj.style.width = (value ? width : 5) + 'px';
       });
     }
@@ -56,7 +63,8 @@ class MultipleInput extends React.Component {
         values.push(inputValue);
         this.setState({
           values,
-          inputValue: ''
+          inputValue: '',
+          valuelength: values.length
         }, () => {
           let {selectMax} = this.props;
           this.setState({
@@ -91,7 +99,8 @@ class MultipleInput extends React.Component {
         values.splice(count, 1);
         this.setState({
           count,
-          values
+          values,
+          valuelength: values.length
         }, () => {
           let {selectMax} = this.props;
           this.setState({
@@ -118,7 +127,8 @@ class MultipleInput extends React.Component {
     let {values} = this.state;
     values.splice(idx, 1);
     this.setState({
-      values
+      values,
+      valuelength: values.length
     }, () => {
       let {selectMax} = this.props;
       this.setState({
@@ -155,7 +165,8 @@ class MultipleInput extends React.Component {
       }
       this.setState({
         count,
-        values
+        values,
+        valuelength: values.length
       });
       if(count == max || (max - count == 1) && keyCode == 46) {
         inputObj.focus();
@@ -206,8 +217,7 @@ class MultipleInput extends React.Component {
       })
     }
 
-    props.onChange(state.values);
-    console.log(state.isFocus)
+    let placeholder = props.placeholder || '请输入';
 
     return <div className={state.isFocus ? 'multiple-ant-input multiple-ant-input-focus' : 'multiple-ant-input'}>
       <div className="multiple-ant-input-wrapper" ref="refContentWrap"
@@ -234,6 +244,7 @@ class MultipleInput extends React.Component {
           />
           <div className="multiple-ant-input-text-save" ref="inputValueCnt">{state.inputValue}</div>
         </div>
+        <div className={(state.values.length || state.inputValue.length) ? 'none multiple-ant-input-place-text': 'multiple-ant-input-place-text'}>{placeholder}</div>
       </div>
     </div>
   }
