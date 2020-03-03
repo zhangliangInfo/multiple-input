@@ -11,12 +11,15 @@ class MultipleInput extends React.Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleContentKeyDown = this.handleContentKeyDown.bind(this);
     this.handleContentClick = this.handleContentClick.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
 
     this.state = {
       values: [],
       inputValue: '',
       count: 0,
       isCeil: false,
+      isFocus: false
     }
   }
 
@@ -24,16 +27,19 @@ class MultipleInput extends React.Component {
     let { value } = e.target;
     const {inputObj, inputValueCnt} = this.refs;
     const {isCeil} = this.state;
-    this.props.selectChange && this.props.selectChange(isCeil);
-    if(isCeil) {
-      return;
+    let {inputReg} = this.props;
+    if(inputReg instanceof RegExp && new RegExp(inputReg, 'g').test(value) || inputReg == undefined) {
+      this.props.selectChange && this.props.selectChange(isCeil);
+      if(isCeil) {
+        return;
+      }
+      this.setState({
+        inputValue: value
+      }, () => {
+        let width = Math.ceil(getComputedStyle(inputValueCnt).width && getComputedStyle(this.refs.inputValueCnt).width.split('px')[0] || 0);
+        inputObj.style.width = (value ? width : 5) + 'px';
+      });
     }
-    this.setState({
-      inputValue: value
-    }, () => {
-      let width = Math.ceil(getComputedStyle(inputValueCnt).width && getComputedStyle(this.refs.inputValueCnt).width.split('px')[0] || 0);
-      inputObj.style.width = (value ? width : 5) + 'px';
-    });
   }
 
   handleKeyDown(e) {
@@ -96,6 +102,18 @@ class MultipleInput extends React.Component {
     }
   }
 
+  handleFocus() {
+    this.setState({
+      isFocus: true
+    })
+  }
+
+  handleBlur() {
+    this.setState({
+      isFocus: false
+    })
+  }
+
   handleRemove(idx) {
     let {values} = this.state;
     values.splice(idx, 1);
@@ -154,19 +172,21 @@ class MultipleInput extends React.Component {
   }
 
   handleContentClick() {
-    let { values } = this.state;
+    // let { values } = this.state;
     let {refContentWrap, refContent, inputObj} = this.refs;
-    if(values.length) {
-      var selection = getSelection()
-      // 设置最后光标对象
-      refContent.focus();
-      selection.selectAllChildren(refContent);
-      // selection.collapseToEnd();
-      selection.collapseToStart();
-      refContentWrap.scrollTo(0, 0);
-    } else {
-      inputObj.focus();
-    }
+    inputObj.focus();
+    refContentWrap.scrollTo(refContent.clientWidth, 0);
+    // if(values.length) {
+    //   var selection = getSelection()
+    //   // 设置最后光标对象
+    //   refContent.focus();
+    //   selection.selectAllChildren(refContent);
+    //   // selection.collapseToEnd();
+    //   selection.collapseToStart();
+    //   refContentWrap.scrollTo(0, 0);
+    // } else {
+    //   inputObj.focus();
+    // }
   }
 
   render() {
@@ -187,8 +207,9 @@ class MultipleInput extends React.Component {
     }
 
     props.onChange(state.values);
+    console.log(state.isFocus)
 
-    return <div className="multiple-ant-input">
+    return <div className={state.isFocus ? 'multiple-ant-input multiple-ant-input-focus' : 'multiple-ant-input'}>
       <div className="multiple-ant-input-wrapper" ref="refContentWrap"
         onClick={this.handleContentClick}
       >
@@ -206,6 +227,8 @@ class MultipleInput extends React.Component {
           <input className="multiple-ant-input-text"
             onChange={this.handleChange}
             onKeyUp={this.handleKeyDown}
+            onFocus={this.handleFocus}
+            onBlur={this.handleBlur}
             value={state.inputValue}
             ref="inputObj"
           />

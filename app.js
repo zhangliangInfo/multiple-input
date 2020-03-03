@@ -18,6 +18,7 @@ ReactDOM.render(
     onChange={handleChange}
     selectMax="3"
     selectChange={handleSelectedChange}
+    inputReg={/^\d*$/}
   />,
   document.getElementById('app')
 )
