@@ -1,17 +1,14 @@
-import * as React from 'react'
-import ReactDOM from 'react-dom'
-import MultipleInput from './src/index.jsx'
-
-
+import * as React from 'react';
+import ReactDOM from 'react-dom';
+import MultipleInput from './src/index.jsx';
 
 function handleChange(value) {
-  console.log(value)
+  console.log(value);
 }
 
 function handleSelectedChange(isCeil) {
-  console.log(isCeil)
+  console.log(isCeil);
 }
-
 
 ReactDOM.render(
   <MultipleInput
@@ -22,4 +19,4 @@ ReactDOM.render(
     placeholder="请输入商品编码"
   />,
   document.getElementById('app')
-)
+);
